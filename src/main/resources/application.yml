@@ -1,5 +1,5 @@
 server:
-  port: 8088
+  port: 8080
   servlet:
     context-path: /api
 
@@ -9,9 +9,9 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:13306/learning_platform?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/learning_platform?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
-    password: root123
+    password: 123456
 
   neo4j:
     uri: bolt://localhost:17687
@@ -19,11 +19,6 @@ spring:
       username: neo4j
       password: neo4j123
 
-  http:
-    encoding:
-      charset: UTF-8
-      force: true
-      enabled: true
   servlet:
     multipart:
       max-file-size: 100MB
@@ -46,6 +41,3 @@ logging:
   level:
     com.learningplatform: debug
     org.springframework: info
-
-piston:
-  url: http://localhost:2000
