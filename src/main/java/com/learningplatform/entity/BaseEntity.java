@@ -18,6 +18,6 @@ public class BaseEntity implements Serializable {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
-    @TableLogic
-    private Integer isDeleted;
+//    @TableLogic
+//    private Integer isDeleted;
 }
