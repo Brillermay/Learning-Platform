@@ -25,7 +25,6 @@ spring:
       max-request-size: 100MB
 
 mybatis-plus:
-  mapper-locations: classpath*:/mapper/**/*.xml
   type-aliases-package: com.learningplatform.entity
   configuration:
     map-underscore-to-camel-case: true

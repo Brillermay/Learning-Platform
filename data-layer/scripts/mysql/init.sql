@@ -78,12 +78,18 @@ CREATE TABLE IF NOT EXISTS `exercise` (
     `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `is_deleted` TINYINT NOT NULL DEFAULT 0 COMMENT '是否删除：0-否，1-是',
+    `description` TEXT COMMENT '题目描述',
+    `initial_code` TEXT COMMENT '编程题初始代码',
+    `test_cases` TEXT COMMENT '测试用例(JSON格式)',
+    `pass_rate` DOUBLE DEFAULT 0 COMMENT '通过率',
+    `total_attempts` INT DEFAULT 0 COMMENT '总尝试次数',
+    `correct_attempts` INT DEFAULT 0 COMMENT '正确次数',
     INDEX idx_knowledge_point_id (`knowledge_point_id`),
     INDEX idx_type (`type`),
     INDEX idx_difficulty (`difficulty`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='练习题表';
 
-CREATE TABLE IF NOT EXISTS `user_exercise` (
+CREATE TABLE IF NOT EXISTS `user_exercise_record` (
     `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '记录ID',
     `user_id` BIGINT NOT NULL COMMENT '用户ID',
     `exercise_id` BIGINT NOT NULL COMMENT '题目ID',
@@ -98,6 +104,7 @@ CREATE TABLE IF NOT EXISTS `user_exercise` (
     INDEX idx_exercise_id (`exercise_id`),
     INDEX idx_submit_time (`submit_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户做题记录表';
+
 
 CREATE TABLE IF NOT EXISTS `learning_progress` (
     `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '进度ID',

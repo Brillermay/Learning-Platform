@@ -16,7 +16,7 @@ CREATE TABLE `exercise`  (
                              `sort_order` int NULL DEFAULT 0 COMMENT '排序',
                              `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                              `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-                             `deleted` int NULL DEFAULT 0 COMMENT '逻辑删除标识',
+                             `is_deleted` int NULL DEFAULT 0 COMMENT '逻辑删除标识',
                              `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '题目描述',
                              `initial_code` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '编程题初始代码',
                              `test_cases` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '测试用例(JSON格式)',

@@ -2,6 +2,7 @@ package com.learningplatform.common;
 
 import lombok.Data;
 
+@Deprecated
 @Data
 public class ApiResponse<T> {
     private Integer code;

@@ -20,7 +20,8 @@ public class CodeExecutionService {
     private static final Map<String, String[]> LANG_MAP = Map.of(
         "c++",    new String[]{"c++",    "main.cpp", "8.3.0"},
         "c",      new String[]{"c",      "main.c",   "8.3.0"},
-        "python", new String[]{"python", "main.py",  "3.7.3"}
+        "python", new String[]{"python", "main.py",  "3.7.3"},
+        "java",   new String[]{"java",   "Main.java", "15.0.2"}
     );
 
     public CodeRunResponse run(String language, String code, String stdin) {
