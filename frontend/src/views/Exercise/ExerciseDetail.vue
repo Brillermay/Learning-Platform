@@ -126,18 +126,27 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, watch } from 'vue'
 import CodeEditor from '@/components/CodeEditor/CodeEditor.vue'
 import { runCode, submitCode } from '@/api/modules/code'
-import { getExerciseDetail } from '@/api/modules/exercise.js'  // 添加这个导入
-
-const route = useRoute()
 
 const DEFAULT_TEMPLATES = {
-  'c++': '#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    // 在此编写代码\n    \n    return 0;\n}',
-  'c':   '#include<stdio.h>\nint main(){\n    // 在此编写代码\n    \n    return 0;\n}',
-  'python': '# 在此编写代码\n'
+  'c++': '#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int a, b;\n    cin >> a >> b;\n    cout << a + b << endl;\n    return 0;\n}',
+  'c': '#include <stdio.h>\n\nint main() {\n    int a, b;\n    scanf("%d %d", &a, &b);\n    printf("%d\\n", a + b);\n    return 0;\n}',
+  'python': 'a, b = map(int, input().split())\nprint(a + b)\n'
+}
+
+const LOCAL_EXERCISE = {
+  id: 1,
+  title: '两数之和（本地测试题）',
+  difficulty: 'EASY',
+  description: '输入两个整数 a 和 b，输出它们的和。\n\n这是代码运行模块的本地固定测试题，不依赖习题数据库或 Neo4j。',
+  testCases: [
+    { input: '3 5', expectedOutput: '8' },
+    { input: '0 0', expectedOutput: '0' },
+    { input: '-2 7', expectedOutput: '5' }
+  ],
+  initialCode: DEFAULT_TEMPLATES
 }
 
 // 响应式数据
@@ -151,99 +160,15 @@ const submitResult = ref(null)
 const activeCaseIndex = ref(0)
 const activeResultType = ref(null) // 'run' | 'submit'
 const code = ref(DEFAULT_TEMPLATES['c++'])
-
-// 关键修改：不再依赖props，而是自己获取数据
-const exercise = ref({
-  title: '',
-  difficulty: 'EASY',
-  description: '正在加载题目...',
-  testCases: []
-})
-
-const loading = ref(true)
-const error = ref(null)
-
-// 监听路由参数变化
-watch(
-    () => route.params.id,
-    (newId) => {
-      if (newId) {
-        loadExercise(newId)
-      }
-    },
-    { immediate: true }
-)
-
-// 加载题目数据
-async function loadExercise(id) {
-  loading.value = true
-  error.value = null
-
-  try {
-    console.log('正在加载习题详情，ID:', id)
-
-    // 调用API获取习题详情
-    const response = await getExerciseDetail(id)
-
-    console.log('习题详情API返回:', response)
-
-    // 假设API返回的格式是 { id, title, description, difficulty, testCases, ... }
-    exercise.value = {
-      id: response.id,
-      title: response.title || '未命名题目',
-      difficulty: response.difficulty || 'EASY',
-      description: response.description || '暂无题目描述',
-      testCases: response.testCases || [],
-      codeTemplate: response.codeTemplate || DEFAULT_TEMPLATES[selectedLanguage.value],
-      // 如果有初始代码，使用题目的初始代码
-      initialCode: response.initialCode
-    }
-
-    // 如果有初始代码，使用题目的初始代码
-    if (response.initialCode) {
-      // 根据语言设置代码
-      const lang = selectedLanguage.value
-      code.value = response.initialCode[lang] || response.initialCode || DEFAULT_TEMPLATES[lang]
-    }
-
-  } catch (err) {
-    console.error('加载习题详情失败:', err)
-    error.value = err.message || '加载失败'
-
-    // 回退到props中的数据（如果父组件传递了）
-    if (props.exercise && props.exercise.title) {
-      exercise.value = props.exercise
-    }
-  } finally {
-    loading.value = false
-  }
-}
-
-// 如果没有路由参数，使用props
-onMounted(() => {
-  const id = route.params.id
-  if (id) {
-    loadExercise(id)
-  } else if (props.exercise && props.exercise.id) {
-    // 如果通过props传递了exercise，使用props的数据
-    exercise.value = props.exercise
-    loading.value = false
-  } else {
-    error.value = '没有获取到题目ID'
-    loading.value = false
-  }
-})
+const exercise = ref(LOCAL_EXERCISE)
 
 // 监听语言变化
 watch(selectedLanguage, (lang) => {
-  // 如果题目有对应语言的初始代码，使用题目的代码
-  if (exercise.value.initialCode && exercise.value.initialCode[lang]) {
-    code.value = exercise.value.initialCode[lang]
-  } else if (exercise.value.codeTemplate) {
-    code.value = exercise.value.codeTemplate
-  } else {
-    code.value = DEFAULT_TEMPLATES[lang] || ''
-  }
+  code.value = exercise.value.initialCode?.[lang] || DEFAULT_TEMPLATES[lang] || ''
+  runResult.value = null
+  submitResult.value = null
+  activeResultType.value = null
+  resultTab.value = 'cases'
 })
 
 const monacoLanguage = computed(() =>
