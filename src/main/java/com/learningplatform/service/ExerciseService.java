@@ -17,7 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.time.LocalDateTime;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,6 +35,9 @@ public class ExerciseService {
 
     @Autowired
     private KnowledgePointRepository knowledgePointRepository;
+
+    @Autowired
+    private CodeExecutionService codeExecutionService;
 
     /**
      * 获取习题列表（带分页和筛选）
@@ -56,7 +60,6 @@ public class ExerciseService {
                     .or()
                     .like("description", request.getKeyword());
         }
-        queryWrapper.eq("deleted", 0);
         queryWrapper.orderByAsc("sort_order");
 
         // 分页查询
@@ -82,7 +85,7 @@ public class ExerciseService {
      */
     public ExerciseDetailResponse getExerciseDetail(Long exerciseId) {
         Exercise exercise = exerciseRepository.selectById(exerciseId);
-        if (exercise == null || exercise.getDeleted() == 1) {
+        if (exercise == null) {
             throw new BusinessException("习题不存在");
         }
 
@@ -115,7 +118,6 @@ public class ExerciseService {
         exercise.setPassRate(0.0);
         exercise.setTotalAttempts(0);
         exercise.setCorrectAttempts(0);
-        exercise.setDeleted(0);
 
         exerciseRepository.insert(exercise);
 
@@ -127,7 +129,7 @@ public class ExerciseService {
      */
     public Boolean updateExercise(UpdateExerciseRequest request) {
         Exercise existingExercise = exerciseRepository.selectById(request.getId());
-        if (existingExercise == null || existingExercise.getDeleted() == 1) {
+        if (existingExercise == null) {
             throw new BusinessException("习题不存在");
         }
 
@@ -148,8 +150,7 @@ public class ExerciseService {
             throw new BusinessException("习题不存在");
         }
 
-        exercise.setDeleted(1);
-        int result = exerciseRepository.updateById(exercise);
+        int result = exerciseRepository.deleteById(exerciseId);
         return result > 0;
     }
 
@@ -158,7 +159,7 @@ public class ExerciseService {
      */
     public SubmitResultResponse submitAnswer(SubmitAnswerRequest request, Long userId) {
         Exercise exercise = exerciseRepository.selectById(request.getExerciseId());
-        if (exercise == null || exercise.getDeleted() == 1) {
+        if (exercise == null) {
             throw new BusinessException("习题不存在");
         }
 
@@ -218,7 +219,6 @@ public class ExerciseService {
         // 查询错题详情
         QueryWrapper<Exercise> queryWrapper = new QueryWrapper<>();
         queryWrapper.in("id", wrongExerciseIds);
-        queryWrapper.eq("deleted", 0);
 
         if (request.getKnowledgeId() != null) {
             queryWrapper.eq("knowledge_point_id", request.getKnowledgeId());
@@ -250,7 +250,6 @@ public class ExerciseService {
     public List<ExerciseResponse> getExercisesByKnowledge(Long knowledgeId) {
         QueryWrapper<Exercise> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("knowledge_point_id", knowledgeId);
-        queryWrapper.eq("deleted", 0);
         queryWrapper.orderByAsc("sort_order");
 
         List<Exercise> exercises = exerciseRepository.selectList(queryWrapper);
@@ -264,21 +263,15 @@ public class ExerciseService {
      * 运行测试用例（编程题）
      */
     private boolean runTestCases(String code, String testCasesJson) {
-        // 这里需要调用代码运行服务
-        // 由于代码运行模块由其他同学负责，这里先返回模拟结果
-        // 实际项目中应该调用专门的代码运行服务
-
         if (!StringUtils.hasText(testCasesJson)) {
             return false;
         }
 
-        // 模拟运行测试用例
         try {
-            // 这里可以简单判断代码是否包含语法错误
-            if (code.contains("error") || code.contains("Error")) {
-                return false;
-            }
-            return true;
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<TestCase> testCases = objectMapper.readValue(testCasesJson, new TypeReference<List<TestCase>>() {});
+            CodeSubmitResponse response = codeExecutionService.submit("java", code, testCases);
+            return "ACCEPTED".equals(response.getStatus());
         } catch (Exception e) {
             log.error("运行测试用例失败", e);
             return false;
@@ -296,7 +289,6 @@ public class ExerciseService {
         exercise.setTotalAttempts(totalAttempts);
         exercise.setCorrectAttempts(correctAttempts);
         exercise.setPassRate(passRate);
-        exercise.setUpdateTime(LocalDateTime.now());
 
         exerciseRepository.updateById(exercise);
     }
@@ -310,7 +302,6 @@ public class ExerciseService {
         record.setExerciseId(exerciseId);
         record.setUserAnswer(userAnswer);
         record.setIsCorrect(isCorrect);
-        record.setCreateTime(LocalDateTime.now());
 
         userExerciseRecordRepository.insert(record);
     }

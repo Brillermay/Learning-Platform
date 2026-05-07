@@ -44,7 +44,4 @@ public class Exercise extends BaseEntity {
     private Integer totalAttempts;  // 总尝试次数
 
     private Integer correctAttempts;  // 正确次数
-
-    @TableLogic
-    private Integer deleted;  // 逻辑删除标识
 }
