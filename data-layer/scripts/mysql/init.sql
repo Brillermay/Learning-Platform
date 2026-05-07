@@ -96,7 +96,6 @@ CREATE TABLE IF NOT EXISTS `user_exercise_record` (
     `user_answer` TEXT COMMENT '用户答案',
     `is_correct` TINYINT COMMENT '是否正确：0-否，1-是',
     `score` INT COMMENT '得分',
-    `submit_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '提交时间',
     `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `is_deleted` TINYINT NOT NULL DEFAULT 0 COMMENT '是否删除：0-否，1-是',

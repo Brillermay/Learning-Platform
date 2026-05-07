@@ -10,7 +10,7 @@ import java.util.List;
 public interface ExerciseRepository extends BaseMapper<Exercise> {
 
     @Select("SELECT e.* FROM exercise e " +
-            "LEFT JOIN user_exercise_record r ON e.id = r.exercise_id AND r.user_id = #{userId} " +
+            "INNER JOIN user_exercise_record r ON e.id = r.exercise_id AND r.user_id = #{userId} " +
             "WHERE e.is_deleted = 0 AND r.is_correct = 0")
     List<Exercise> findWrongExercisesByUserId(@Param("userId") Long userId);
 

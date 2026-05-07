@@ -22,6 +22,8 @@ public class CreateKnowledgePointRequest {
     @NotBlank
     private String difficulty;
 
+    private Long parentId;
+
     private String description;
 
     private String corePoints;
